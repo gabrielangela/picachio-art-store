@@ -1,12 +1,26 @@
-import { Outlet } from 'react-router';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../configs/firebase';
 
-export default function MainLayout () {
-    
-    return (
-        <>
-            <header>Home Side</header>
-            <Outlet />
-        </>
-    );
+export default function MainLayout() {
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate('/auth/login');
+      }
+    });
+
+    // Optional: cleanup listener saat komponen unmount
+    return () => unsubscribe();
+  }, [navigate]);
+
+  return (
+    <>
+      <header>Home side</header>
+      <Outlet />
+    </>
+  );
 }
