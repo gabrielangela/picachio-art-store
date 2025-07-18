@@ -13,13 +13,19 @@ export default function MainLayout() {
       }
     });
 
-    // Optional: cleanup listener saat komponen unmount
+    // cleanup listener saat komponen unmount
     return () => unsubscribe();
   }, [navigate]);
 
   return (
     <>
-      <header>Home side</header>
+      <header>
+        <nav>
+          <Link to="/">Home</Link> |{" "}
+          <Link to="/about">About</Link> |{" "}
+          <Link to="/contact">Contact</Link>
+        </nav>
+      </header>
       <Outlet />
     </>
   );
