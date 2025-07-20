@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { Outlet, useNavigate, Link } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../configs/firebase';
+import Navbar from '../components/Navbar';
 
 export default function MainLayout() {
   const navigate = useNavigate();
@@ -12,21 +13,15 @@ export default function MainLayout() {
         navigate('/auth/login');
       }
     });
-
-    // cleanup listener saat komponen unmount
     return () => unsubscribe();
   }, [navigate]);
 
   return (
     <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link> |{" "}
-          <Link to="/about">About</Link> |{" "}
-          <Link to="/contact">Contact</Link>
-        </nav>
-      </header>
-      <Outlet />
+      <Navbar />
+      <main className="bg-pink-50 min-h-screen px-6 py-10 font-sans">
+        <Outlet />
+      </main>
     </>
   );
 }

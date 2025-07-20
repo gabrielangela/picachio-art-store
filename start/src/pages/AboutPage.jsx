@@ -6,9 +6,12 @@ export default function AboutPage() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div>
-      <h1>About Page</h1>
-      <p>Selamat datang, {user?.email || 'Guest'}!</p>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow text-center">
+      <h1 className="text-2xl font-bold text-rose-600 mb-4">About briellicious.</h1>
+      <p className="text-gray-700 mb-2">
+        briellicious. is your go-to destination for body care and beauty. We believe self-love starts with self-care.
+      </p>
+      <p className="text-gray-600">Welcome, {user?.email || 'Guest'}!</p>
     </div>
   );
 }
