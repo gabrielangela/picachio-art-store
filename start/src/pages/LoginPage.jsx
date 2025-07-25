@@ -27,7 +27,7 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
       >
-        <h1 className="text-3xl font-bold text-center text-rose-600 mb-6 font-serif">
+        <h1 className="text-3xl font-bold text-center text-rose-600 mb-6">
           briellicious.
         </h1>
 
