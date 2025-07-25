@@ -52,6 +52,15 @@ export default function HomePage() {
         </div>
       </div>
 
+      <div className="mb-6">
+        <button
+          onClick={() => navigate('/add')}
+          className="bg-rose-500 hover:bg-rose-600 text-white font-semibold px-4 py-2 rounded"
+        >
+          + Add Product
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-md p-4 text-center">
