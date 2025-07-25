@@ -25,9 +25,13 @@ export default function HomePage() {
   };
 
   const handleDelete = async (id) => {
-    await deleteDoc(doc(db, "products", id));
-    fetchProducts(); // Refresh data
+  const confirmDelete = confirm('Are you sure you want to delete this product?');
+  if (!confirmDelete) return;
+
+  await deleteDoc(doc(db, 'products', id));
+  fetchProducts(); // refresh list
   };
+
 
   useEffect(() => {
     fetchProducts();
@@ -73,9 +77,13 @@ export default function HomePage() {
             <p className="text-sm text-gray-700 mb-1">{product.name}</p>
             <p className="text-rose-600 font-semibold mb-2">Rp {Number(product.price).toLocaleString('id-ID')}</p>
             <div className="flex justify-center gap-2">
-              <button className="bg-yellow-400 hover:bg-yellow-500 text-white text-xs px-3 py-1 rounded">
-                Edit
+              <button
+              onClick={() => navigate(`/edit/${product.id}`)}
+              className="bg-yellow-400 hover:bg-yellow-500 text-white text-xs px-3 py-1 rounded"
+              >
+              Edit
               </button>
+
               <button
                 onClick={() => handleDelete(product.id)}
                 className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded"
