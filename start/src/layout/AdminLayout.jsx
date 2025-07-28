@@ -18,7 +18,6 @@ export default function AdminLayout() {
 
   return (
     <>
-      <header>Admin Side</header>
       <Outlet />
     </>
   );

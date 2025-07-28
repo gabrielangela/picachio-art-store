@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth } from '../configs/firebase';
 import { useNavigate } from 'react-router';
+import { googleProvider } from '../configs/firebase';
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -20,6 +21,16 @@ export default function LoginPage() {
       alert(err.message);
     }
   };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+      navigate('/');
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-rose-50 to-pink-100 px-4">
@@ -54,6 +65,15 @@ export default function LoginPage() {
         >
           LOGIN
         </button>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="bg-pink-200 hover:bg-pink-300 text-rose-700 font-semibold w-full py-2 rounded mt-4"
+        >
+          Sign in with Google
+        </button>
+
 
         <p className="text-center mt-4 text-sm text-gray-600">
           Don&apos;t have an account?{' '}

@@ -32,7 +32,6 @@ export default function HomePage() {
   fetchProducts(); // refresh list
   };
 
-
   useEffect(() => {
     fetchProducts();
   }, []);
