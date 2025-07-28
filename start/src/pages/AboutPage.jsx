@@ -11,7 +11,6 @@ export default function AboutPage() {
       <p className="text-gray-700 mb-2">
         briellicious. is your go-to destination for body care and beauty. We believe self-love starts with self-care.
       </p>
-      <p className="text-gray-600">Welcome, {user?.email || 'Guest'}!</p>
     </div>
   );
 }

@@ -57,15 +57,15 @@ export default function HomePage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-4 gap-4">
         {products.map((product) => (
-          <div key={product.id} className="bg-white rounded-lg shadow-md p-4 text-center">
+          <div key={product.id} className="bg-white rounded-lg shadow-md p-3 text-center">
             <img
               src={product.imageUrl}
               alt={product.name}
-              className="w-full h-40 object-contain mb-4"
+              className="w-full h-32 object-contain mb-3"
             />
-            <h2 className="text-sm font-bold">{product.brand}</h2>
+            <h2 className="text-sm font-bold uppercase">{product.brand}</h2>
             <p className="text-sm text-gray-700 mb-1">{product.name}</p>
             <p className="text-rose-600 font-semibold mb-2">
               Rp {Number(product.price).toLocaleString('id-ID')}
@@ -73,13 +73,13 @@ export default function HomePage() {
             <div className="flex justify-center gap-2">
               <button
                 onClick={() => navigate(`/edit/${product.id}`)}
-                className="bg-yellow-400 hover:bg-yellow-500 text-white text-xs px-3 py-1 rounded"
+                className="bg-yellow-400 hover:bg-yellow-500 text-white text-sm px-3 py-1 rounded"
               >
                 Edit
               </button>
               <button
                 onClick={() => handleDelete(product.id)}
-                className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded"
+                className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
               >
                 Delete
               </button>
