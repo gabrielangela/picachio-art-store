@@ -1,42 +1,35 @@
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
-import { auth, db } from '../configs/firebase';
+import { auth } from '../configs/firebase';
 import { useNavigate } from 'react-router';
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { useEffect, useState } from 'react';
+
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchProducts, deleteProduct } from '../redux/productsSlice';
 
 export default function HomePage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [products, setProducts] = useState([]);
+  const dispatch = useDispatch();
+
+  const { items: products, loading: productLoading } = useSelector((state) => state.products);
+
+  useEffect(() => {
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   const handleLogout = async () => {
     await signOut(auth);
     navigate('/auth/login');
   };
 
-  const fetchProducts = async () => {
-    const querySnapshot = await getDocs(collection(db, "products"));
-    const data = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    setProducts(data);
+  const handleDelete = (id) => {
+    const confirmDelete = confirm('Are you sure you want to delete this product?');
+    if (!confirmDelete) return;
+    dispatch(deleteProduct(id));
   };
 
-  const handleDelete = async (id) => {
-  const confirmDelete = confirm('Are you sure you want to delete this product?');
-  if (!confirmDelete) return;
-
-  await deleteDoc(doc(db, 'products', id));
-  fetchProducts(); // refresh list
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
+  if (loading || productLoading) return <p>Loading...</p>;
 
   return (
     <div className="min-h-screen bg-pink-50 px-6 py-10">
@@ -74,15 +67,16 @@ export default function HomePage() {
             />
             <h2 className="text-sm font-bold">{product.brand}</h2>
             <p className="text-sm text-gray-700 mb-1">{product.name}</p>
-            <p className="text-rose-600 font-semibold mb-2">Rp {Number(product.price).toLocaleString('id-ID')}</p>
+            <p className="text-rose-600 font-semibold mb-2">
+              Rp {Number(product.price).toLocaleString('id-ID')}
+            </p>
             <div className="flex justify-center gap-2">
               <button
-              onClick={() => navigate(`/edit/${product.id}`)}
-              className="bg-yellow-400 hover:bg-yellow-500 text-white text-xs px-3 py-1 rounded"
+                onClick={() => navigate(`/edit/${product.id}`)}
+                className="bg-yellow-400 hover:bg-yellow-500 text-white text-xs px-3 py-1 rounded"
               >
-              Edit
+                Edit
               </button>
-
               <button
                 onClick={() => handleDelete(product.id)}
                 className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded"

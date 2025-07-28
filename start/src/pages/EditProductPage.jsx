@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useDispatch } from 'react-redux';
+import { updateProduct } from '../redux/productsSlice';
 import { db } from '../configs/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function EditProductPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { id } = useParams();
 
   const [form, setForm] = useState({
@@ -35,9 +38,13 @@ export default function EditProductPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const productRef = doc(db, 'products', id);
-    await updateDoc(productRef, form);
-    navigate('/');
+    try {
+      await dispatch(updateProduct({ id, updated: { ...form, price: Number(form.price) } }));
+      alert('Product updated successfully');
+      navigate('/');
+    } catch (error) {
+      alert('Error updating product: ' + error.message);
+    }
   };
 
   return (

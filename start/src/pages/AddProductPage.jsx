@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../configs/firebase';
 import { useNavigate } from 'react-router';
+import { useDispatch } from 'react-redux';
+import { addProduct } from '../redux/productsSlice';
 
 export default function AddProductPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [form, setForm] = useState({
     name: '',
     brand: '',
@@ -19,11 +21,13 @@ export default function AddProductPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await addDoc(collection(db, "products"), {
+      await dispatch(addProduct({
         ...form,
         price: Number(form.price)
-      });
+      }));
+
       alert("Product added successfully");
       navigate('/');
     } catch (error) {
