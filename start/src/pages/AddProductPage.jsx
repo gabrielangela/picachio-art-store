@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { addProduct } from '../redux/productsSlice';
 
+import { FileUploaderRegular } from "@uploadcare/react-uploader";
+import "@uploadcare/react-uploader/core.css";
+
 export default function AddProductPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -63,15 +66,26 @@ export default function AddProductPage() {
           required
         />
 
-        <label className="block mb-2 text-sm font-medium">Image URL</label>
-        <input
-          name="imageUrl"
-          type="url"
-          value={form.imageUrl}
-          onChange={handleChange}
-          className="w-full mb-4 p-2 border rounded"
-          required
-        />
+        <label className="block mb-2 text-sm font-medium">Image</label>
+        <div className="flex items-center gap-2 mb-4">
+          <input
+            name="imageUrl"
+            type="text"
+            value={form.imageUrl}
+            onChange={handleChange}
+            placeholder="Image URL"
+            className="w-full p-2 border rounded"
+          />
+          <span className="mx-2 text-gray-500">OR</span>
+          <FileUploaderRegular
+            pubkey="07c2b8b3d67ddf12ae99"
+            onFileUploadSuccess={(result) => {
+              console.log('Upload Success → CDN URL:', result.cdnUrl);
+              setForm((prev) => ({ ...prev, imageUrl: result.cdnUrl }));
+            }}
+            className="uc-file-uploader-regular"
+          />
+        </div>
 
         <label className="block mb-2 text-sm font-medium">Price</label>
         <input

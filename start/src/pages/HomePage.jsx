@@ -60,11 +60,17 @@ export default function HomePage() {
       <div className="grid grid-cols-4 gap-4">
         {products.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-md p-3 text-center">
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="w-full h-32 object-contain mb-3"
-            />
+            {product.imageUrl ? (
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="w-full h-32 object-contain mb-3"
+              />
+            ) : (
+              <div className="w-full h-32 bg-gray-100 flex items-center justify-center text-gray-400 text-xs mb-3">
+                No Image
+              </div>
+            )}
             <h2 className="text-sm font-bold uppercase">{product.brand}</h2>
             <p className="text-sm text-gray-700 mb-1">{product.name}</p>
             <p className="text-rose-600 font-semibold mb-2">
