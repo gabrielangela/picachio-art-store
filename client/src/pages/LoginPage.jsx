@@ -31,15 +31,14 @@ export default function LoginPage() {
     }
   };
 
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-rose-50 to-pink-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#cad2c5] to-[#84a98c] px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md"
+        className="bg-[#f9fdfb] p-8 rounded-lg shadow-lg w-full max-w-md border border-[#84a98c]"
       >
-        <h1 className="text-3xl font-bold text-center text-rose-600 mb-6">
-          briellicious.
+        <h1 className="text-3xl font-bold text-center text-[#354f52] mb-6">
+          Picachio.
         </h1>
 
         <input
@@ -48,7 +47,7 @@ export default function LoginPage() {
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full border border-rose-200 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className="w-full border border-[#cad2c5] rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#52796f]"
         />
         <input
           name="password"
@@ -56,12 +55,12 @@ export default function LoginPage() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full border border-rose-200 rounded px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className="w-full border border-[#cad2c5] rounded px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-[#52796f]"
         />
 
         <button
           type="submit"
-          className="w-full bg-rose-500 hover:bg-rose-600 text-white py-2 rounded font-bold transition"
+          className="w-full bg-[#354f52] hover:bg-[#2f3e46] text-white py-2 rounded font-bold transition"
         >
           LOGIN
         </button>
@@ -69,17 +68,16 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={handleGoogleLogin}
-          className="bg-pink-200 hover:bg-pink-300 text-rose-700 font-semibold w-full py-2 rounded mt-4"
+          className="bg-[#cad2c5] hover:bg-[#84a98c] text-[#2f3e46] font-semibold w-full py-2 rounded mt-4"
         >
           Sign in with Google
         </button>
 
-
-        <p className="text-center mt-4 text-sm text-gray-600">
+        <p className="text-center mt-4 text-sm text-[#52796f]">
           Don&apos;t have an account?{' '}
           <a
             href="/auth/register"
-            className="text-rose-600 font-semibold hover:underline"
+            className="text-[#2f3e46] font-semibold hover:underline"
           >
             Register Now
           </a>

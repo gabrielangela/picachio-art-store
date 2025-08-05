@@ -8,6 +8,10 @@ import AboutPage from '../pages/AboutPage';
 import ContactPage from '../pages/ContactPage';
 import AddProductPage from '../pages/AddProductPage';
 import EditProductPage from '../pages/EditProductPage';
+import CartPage from '../pages/CartPage';
+import AdminSetupPage from '../pages/AdminSetupPage';
+import AdminDashboard from '../pages/AdminDashboard';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 const router = createBrowserRouter([
   {
@@ -28,11 +32,43 @@ const router = createBrowserRouter([
       },
       {
         path: "add",
-        element: <AddProductPage />
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <AddProductPage />
+          </ProtectedRoute>
+        )
       },
       {
         path: "edit/:id",
-        element: <EditProductPage />
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <EditProductPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "cart",
+        element: (
+          <ProtectedRoute requiredRole="client">
+            <CartPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "admin-setup",
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <AdminSetupPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "admin-dashboard",
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        )
       }
     ]
   },

@@ -10,13 +10,13 @@ import { getFirestore } from "firebase/firestore";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyD4xMse2TdejBR0wpagrdWRDCs9dDMg45c",
-  authDomain: "beauty-website-008.firebaseapp.com",
-  projectId: "beauty-website-008",
-  storageBucket: "beauty-website-008.firebasestorage.app",
-  messagingSenderId: "1074532082282",
-  appId: "1:1074532082282:web:8ff4b9afe169834cb6e013",
-  measurementId: "G-LFB13H9CJZ"
+  apiKey: "AIzaSyD0ArOxBhY7Ul4xfOuc8kcAJhlO3xrfpG0",
+  authDomain: "picachio-website.firebaseapp.com",
+  projectId: "picachio-website",
+  storageBucket: "picachio-website.firebasestorage.app",
+  messagingSenderId: "80621108895",
+  appId: "1:80621108895:web:e3bd82c77bece670fa6caa",
+  measurementId: "G-ZY0P6ZHLXW"
 };
 
 // Initialize Firebase

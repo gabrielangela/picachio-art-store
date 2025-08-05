@@ -51,34 +51,36 @@ export default function EditProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-pink-50 flex justify-center items-center p-6">
+    <div className="min-h-screen bg-[#84a98c] flex justify-center items-center p-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md"
+        className="bg-[#f9fdfb] shadow-lg rounded-lg p-8 w-full max-w-md border border-[#84a98c]"
       >
-        <h2 className="text-2xl font-bold text-center text-rose-600 mb-6">Edit Product</h2>
+        <h2 className="text-2xl font-bold text-center text-[#354f52] mb-6">
+          Edit Product
+        </h2>
 
-        <label className="block mb-2 text-sm font-medium">Product Name</label>
+        <label className="block mb-2 text-sm font-medium text-[#2f3e46]">Product Name</label>
         <input
           name="name"
           type="text"
           value={form.name}
           onChange={handleChange}
-          className="w-full mb-4 p-2 border rounded"
+          className="w-full mb-4 p-2 border border-[#cad2c5] rounded focus:outline-none focus:ring-2 focus:ring-[#52796f]"
           required
         />
 
-        <label className="block mb-2 text-sm font-medium">Brand</label>
+        <label className="block mb-2 text-sm font-medium text-[#2f3e46]">Brand</label>
         <input
           name="brand"
           type="text"
           value={form.brand}
           onChange={handleChange}
-          className="w-full mb-4 p-2 border rounded"
+          className="w-full mb-4 p-2 border border-[#cad2c5] rounded focus:outline-none focus:ring-2 focus:ring-[#52796f]"
           required
         />
 
-        <label className="block mb-2 text-sm font-medium">Image</label>
+        <label className="block mb-2 text-sm font-medium text-[#2f3e46]">Image</label>
         <div className="flex items-center gap-2 mb-4">
           <input
             name="imageUrl"
@@ -86,9 +88,9 @@ export default function EditProductPage() {
             value={form.imageUrl}
             onChange={handleChange}
             placeholder="Image URL"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border border-[#cad2c5] rounded focus:outline-none focus:ring-2 focus:ring-[#52796f]"
           />
-          <span className="mx-2 text-gray-500">OR</span>
+          <span className="mx-2 text-[#52796f]">OR</span>
           <FileUploaderRegular
             pubkey="07c2b8b3d67ddf12ae99"
             onFileUploadSuccess={(result) => {
@@ -99,19 +101,19 @@ export default function EditProductPage() {
           />
         </div>
 
-        <label className="block mb-2 text-sm font-medium">Price</label>
+        <label className="block mb-2 text-sm font-medium text-[#2f3e46]">Price</label>
         <input
           name="price"
           type="number"
           value={form.price}
           onChange={handleChange}
-          className="w-full mb-6 p-2 border rounded"
+          className="w-full mb-6 p-2 border border-[#cad2c5] rounded focus:outline-none focus:ring-2 focus:ring-[#52796f]"
           required
         />
 
         <button
           type="submit"
-          className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 px-4 rounded"
+          className="w-full bg-[#354f52] hover:bg-[#2f3e46] text-white font-semibold py-2 px-4 rounded transition"
         >
           Update Product
         </button>

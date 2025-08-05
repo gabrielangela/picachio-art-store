@@ -22,16 +22,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-rose-600 mb-6">briellicious.</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#cad2c5] to-[#84a98c] px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[#f9fdfb] p-8 rounded-lg shadow-lg w-full max-w-md border border-[#84a98c]"
+      >
+        <h1 className="text-3xl font-bold text-center text-[#354f52] mb-6">
+          Picachio.
+        </h1>
+
         <input
           name="email"
           type="email"
           placeholder="Email"
           value={form.email}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className="w-full border border-[#cad2c5] rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#52796f]"
         />
         <input
           name="password"
@@ -39,14 +45,22 @@ export default function RegisterPage() {
           placeholder="Password"
           value={form.password}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2 mb-6"
+          className="w-full border border-[#cad2c5] rounded px-3 py-2 mb-6 focus:outline-none focus:ring-2 focus:ring-[#52796f]"
         />
-        <button type="submit" className="w-full bg-rose-500 text-white py-2 rounded font-bold">
+
+        <button
+          type="submit"
+          className="w-full bg-[#354f52] hover:bg-[#2f3e46] text-white py-2 rounded font-bold transition"
+        >
           REGISTER
         </button>
-        <p className="text-center mt-4 text-sm text-gray-600">
+
+        <p className="text-center mt-4 text-sm text-[#52796f]">
           Already have an account?{' '}
-          <a href="/auth/login" className="text-rose-600 font-semibold">
+          <a
+            href="/auth/login"
+            className="text-[#2f3e46] font-semibold hover:underline"
+          >
             Login Now
           </a>
         </p>
