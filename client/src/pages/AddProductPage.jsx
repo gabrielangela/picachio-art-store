@@ -109,12 +109,21 @@ export default function AddProductPage() {
           required
         />
 
-        <button
-          type="submit"
-          className="w-full bg-[#354f52] hover:bg-[#2f3e46] text-white font-semibold py-2 px-4 rounded transition"
-        >
-          Add Product
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            className="flex-1 bg-[#354f52] hover:bg-[#2f3e46] text-white font-semibold py-2 px-4 rounded transition"
+          >
+            Add Product
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="flex-1 bg-[#cad2c5] hover:bg-[#84a98c] text-[#354f52] font-semibold py-2 px-4 rounded transition"
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
