@@ -11,6 +11,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [userDisplayName, setUserDisplayName] = useState(null);
   const [loading, setLoading] = useState(true); // Untuk menangani loading saat cek user
 
   useEffect(() => {
@@ -27,16 +28,20 @@ export function AuthProvider({ children }) {
           if (userDoc.exists()) {
             const userData = userDoc.data();
             setUserRole(userData.role || 'client'); // Default to 'client' if no role specified
+            setUserDisplayName(userData.displayName || null);
           } else {
             // If user document doesn't exist, default to 'client'
             setUserRole('client');
+            setUserDisplayName(null);
           }
         } catch (error) {
           console.error('Error fetching user role:', error);
           setUserRole('client'); // Default to 'client' on error
         }
       } else {
+        setUser(null);
         setUserRole(null);
+        setUserDisplayName(null);
       }
       
       setUser(currentUser);
@@ -47,7 +52,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, userRole, loading }}>
+    <AuthContext.Provider value={{ user, userRole, userDisplayName, loading }}>
       {children}
     </AuthContext.Provider>
   );

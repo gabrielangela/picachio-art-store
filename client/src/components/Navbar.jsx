@@ -63,7 +63,7 @@ export default function Navbar() {
         {userRole === 'client' && (
           <Link 
             to="/cart" 
-            className="relative bg-[#354f52] hover:bg-[#2f3e46] text-white px-3 py-1 rounded font-medium transition flex items-center gap-1"
+            className="relative bg-[#52796f] hover:bg-[#354f52] text-white px-3 py-1 rounded font-medium transition flex items-center gap-1"
           >
             Cart
             {totalQuantity > 0 && (

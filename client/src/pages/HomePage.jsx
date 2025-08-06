@@ -9,7 +9,7 @@ import { fetchProducts, deleteProduct } from '../redux/productsSlice';
 import { addToCart } from '../redux/cartSlice';
 
 export default function HomePage() {
-  const { user, userRole, loading } = useAuth();
+  const { user, userRole, userDisplayName, loading } = useAuth();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -43,7 +43,11 @@ export default function HomePage() {
         <h1 className="text-3xl font-bold text-[#354f52]">products catalog</h1>
         <div>
           <span className="text-sm text-[#52796f] mr-4">
-            Logged in as <strong>{user?.email || 'Guest'}</strong>
+            {userRole === 'admin' ? (
+              <>Logged in as <strong>{user?.email || 'client'}</strong></>
+            ) : (
+              <>Welcome <strong>{userDisplayName || user?.email || 'client'}</strong>! Let’s turn your ideas into art</>
+            )}
           </span>
           <button
             onClick={handleLogout}

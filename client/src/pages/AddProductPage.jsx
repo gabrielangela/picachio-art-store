@@ -39,7 +39,7 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#84a98c] flex justify-center items-center p-6">
+    <div className="min-h-screen flex justify-center items-center p-6">
       <form
         onSubmit={handleSubmit}
         className="bg-[#f9fdfb] shadow-lg rounded-lg p-8 w-full max-w-md border border-[#84a98c]"
@@ -63,6 +63,16 @@ export default function AddProductPage() {
           name="brand"
           type="text"
           value={form.brand}
+          onChange={handleChange}
+          className="w-full mb-4 p-2 border border-[#cad2c5] rounded focus:outline-none focus:ring-2 focus:ring-[#52796f]"
+          required
+        />
+
+        <label className="block mb-2 text-sm font-medium text-[#2f3e46]">Category</label>
+        <input
+          name="category"
+          type="text"
+          value={form.category}
           onChange={handleChange}
           className="w-full mb-4 p-2 border border-[#cad2c5] rounded focus:outline-none focus:ring-2 focus:ring-[#52796f]"
           required

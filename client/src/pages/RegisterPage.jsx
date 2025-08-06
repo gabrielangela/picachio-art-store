@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../configs/firebase';
 import { useNavigate } from 'react-router';
+import { initializeUserDocument } from '../utils/userUtils';
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '', displayName: '' });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -14,7 +15,16 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, form.email, form.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      const user = userCredential.user;
+      
+      // Initialize user document with displayName and default role 'client'
+      await initializeUserDocument(user.uid, {
+        email: form.email,
+        displayName: form.displayName,
+        role: 'client'
+      });
+      
       navigate('/');
     } catch (err) {
       alert(err.message);
@@ -31,6 +41,15 @@ export default function RegisterPage() {
           Picachio.
         </h1>
 
+        <input
+          name="displayName"
+          type="text"
+          placeholder="Full Name"
+          value={form.displayName}
+          onChange={handleChange}
+          className="w-full border border-[#cad2c5] rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#52796f]"
+          required
+        />
         <input
           name="email"
           type="email"

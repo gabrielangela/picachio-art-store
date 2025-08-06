@@ -76,3 +76,25 @@ export const initializeUser = async (user, defaultRole = 'client') => {
     return false;
   }
 };
+
+/**
+ * Initialize user document with custom data
+ * @param {string} userId - The user's UID
+ * @param {object} userData - User data object
+ */
+export const initializeUserDocument = async (userId, userData) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, {
+      ...userData,
+      createdAt: new Date(),
+      lastLogin: new Date()
+    });
+    
+    console.log(`User document initialized for: ${userData.email}`);
+    return true;
+  } catch (error) {
+    console.error('Error initializing user document:', error);
+    return false;
+  }
+};
