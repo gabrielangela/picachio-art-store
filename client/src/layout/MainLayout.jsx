@@ -19,7 +19,7 @@ export default function MainLayout() {
   return (
     <>
       <Navbar />
-      <main className="font-sans">
+      <main className="bg-gradient-to-b from-[#cad2c5] to-[#84a98c] min-h-screen px-6 py-10 font-sans">
         <Outlet />
       </main>
     </>
