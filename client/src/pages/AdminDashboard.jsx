@@ -28,22 +28,22 @@ export default function AdminDashboard() {
         id: doc.id,
         ...doc.data()
       }));
-      
+
       setUsers(usersData);
-      
+
       // Calculate stats
       const totalUsers = usersData.length;
       const totalAdmins = usersData.filter(u => u.role === 'admin').length;
       const totalClients = usersData.filter(u => u.role === 'client').length;
       const totalProducts = products.length;
-      
+
       setStats({
         totalUsers,
         totalAdmins,
         totalClients,
         totalProducts
       });
-      
+
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -79,48 +79,36 @@ export default function AdminDashboard() {
           <p className="text-[#52796f]">Welcome back, {user?.email}</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-[#f9fdfb] rounded-lg shadow-md p-6 border border-[#cad2c5]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[#52796f]">Total Users</p>
-                <p className="text-2xl font-bold text-[#354f52]">{stats.totalUsers}</p>
-              </div>
-              <div className="text-3xl">👥</div>
+            <div>
+              <p className="text-sm font-medium text-[#52796f]">Total Users</p>
+              <p className="text-2xl font-bold text-[#354f52]">{stats.totalUsers}</p>
             </div>
           </div>
 
           <div className="bg-[#f9fdfb] rounded-lg shadow-md p-6 border border-[#cad2c5]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[#52796f]">Admins</p>
-                <p className="text-2xl font-bold text-[#354f52]">{stats.totalAdmins}</p>
-              </div>
-              <div className="text-3xl">👑</div>
+            <div>
+              <p className="text-sm font-medium text-[#52796f]">Admins</p>
+              <p className="text-2xl font-bold text-[#354f52]">{stats.totalAdmins}</p>
             </div>
           </div>
 
           <div className="bg-[#f9fdfb] rounded-lg shadow-md p-6 border border-[#cad2c5]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[#52796f]">Clients</p>
-                <p className="text-2xl font-bold text-[#354f52]">{stats.totalClients}</p>
-              </div>
-              <div className="text-3xl">👤</div>
+            <div>
+              <p className="text-sm font-medium text-[#52796f]">Clients</p>
+              <p className="text-2xl font-bold text-[#354f52]">{stats.totalClients}</p>
             </div>
           </div>
 
           <div className="bg-[#f9fdfb] rounded-lg shadow-md p-6 border border-[#cad2c5]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[#52796f]">Products</p>
-                <p className="text-2xl font-bold text-[#354f52]">{stats.totalProducts}</p>
-              </div>
-              <div className="text-3xl">📦</div>
+            <div>
+              <p className="text-sm font-medium text-[#52796f]">Products</p>
+              <p className="text-2xl font-bold text-[#354f52]">{stats.totalProducts}</p>
             </div>
           </div>
         </div>
+
 
         {/* Recent Users */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -138,11 +126,10 @@ export default function AdminDashboard() {
                         {userData.displayName || 'No display name'}
                       </p>
                     </div>
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      userData.role === 'admin' 
-                        ? 'bg-red-100 text-red-800' 
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${userData.role === 'admin'
+                        ? 'bg-red-100 text-red-800'
                         : 'bg-green-100 text-green-800'
-                    }`}>
+                      }`}>
                       {userData.role || 'client'}
                     </span>
                   </div>
@@ -162,13 +149,13 @@ export default function AdminDashboard() {
                   href="/add"
                   className="block w-full bg-[#354f52] hover:bg-[#2f3e46] text-white font-semibold py-3 px-4 rounded transition text-center"
                 >
-                  ➕ Add New Product
+                  Add New Product
                 </a>
                 <a
                   href="/admin-setup"
                   className="block w-full bg-[#4a5759] hover:bg-[#3c4748] text-white font-semibold py-3 px-4 rounded transition text-center"
                 >
-                  👥 Manage Users
+                  Manage Users
                 </a>
                 <div className="bg-[#e0e4e2] rounded p-4">
                   <h3 className="font-semibold text-[#354f52] mb-2">Make User Admin</h3>

@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts, deleteProduct } from '../redux/productsSlice';
 import { addToCart } from '../redux/cartSlice';
 import { db } from '../configs/firebase';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, limit, startAfter } from 'firebase/firestore';
 
 export default function HomePage() {
   const { user, userRole, userDisplayName, loading } = useAuth();
@@ -24,6 +24,34 @@ export default function HomePage() {
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastDoc, setLastDoc] = useState(null);
+  const [firstDoc, setFirstDoc] = useState(null);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPrevPage, setHasPrevPage] = useState(false);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [pageHistory, setPageHistory] = useState([]); // Store document cursors for previous pages
+  
+  // Dynamic products per page based on screen size
+  const [productsPerPage, setProductsPerPage] = useState(15);
+  
+  // Update products per page based on screen size
+  useEffect(() => {
+    const updateProductsPerPage = () => {
+      const width = window.innerWidth;
+      if (width >= 768 && width < 1024) { // md breakpoint
+        setProductsPerPage(12);
+      } else {
+        setProductsPerPage(15);
+      }
+    };
+    
+    updateProductsPerPage();
+    window.addEventListener('resize', updateProductsPerPage);
+    return () => window.removeEventListener('resize', updateProductsPerPage);
+  }, []);
 
   // Fetch unique categories and brands
   const fetchCategoriesAndBrands = async () => {
@@ -47,8 +75,30 @@ export default function HomePage() {
     }
   };
 
-  // Filter and sort products using Firestore query
-  const fetchFilteredProducts = async () => {
+  // Get total count of products matching filters
+  const getTotalProductsCount = async () => {
+    try {
+      const productsRef = collection(db, 'products');
+      let q = query(productsRef);
+      
+      // Add where clauses for filtering
+      if (selectedCategory !== 'All Category') {
+        q = query(q, where('category', '==', selectedCategory));
+      }
+      if (selectedBrand !== 'All Brand') {
+        q = query(q, where('brand', '==', selectedBrand));
+      }
+      
+      const snapshot = await getDocs(q);
+      setTotalProducts(snapshot.size);
+    } catch (error) {
+      console.error('Error getting total count:', error);
+      setTotalProducts(0);
+    }
+  };
+
+  // Filter and sort products using Firestore query with pagination
+  const fetchFilteredProducts = async (pageDirection = 'first', cursor = null) => {
     try {
       const productsRef = collection(db, 'products');
       let q = query(productsRef);
@@ -65,13 +115,36 @@ export default function HomePage() {
       const priceDirection = sortBy === 'price-desc' ? 'desc' : 'asc';
       q = query(q, orderBy('price', priceDirection), orderBy('category', 'asc'));
       
-      const snapshot = await getDocs(q);
-      const productsData = [];
-      snapshot.forEach((doc) => {
-        productsData.push({ id: doc.id, ...doc.data() });
-      });
+      // Add pagination
+      if (pageDirection === 'next' && cursor) {
+        q = query(q, startAfter(cursor), limit(productsPerPage + 1)); // +1 to check if there's a next page
+      } else if (pageDirection === 'prev' && cursor) {
+        q = query(q, startAfter(cursor), limit(productsPerPage + 1));
+      } else {
+        q = query(q, limit(productsPerPage + 1)); // First page
+      }
       
+      const snapshot = await getDocs(q);
+      const docs = snapshot.docs;
+      
+      // Check if there are more pages
+      const hasMore = docs.length > productsPerPage;
+      const actualDocs = hasMore ? docs.slice(0, productsPerPage) : docs;
+      
+      const productsData = actualDocs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      // Update pagination state
+      if (actualDocs.length > 0) {
+        setFirstDoc(actualDocs[0]);
+        setLastDoc(actualDocs[actualDocs.length - 1]);
+      } else {
+        setFirstDoc(null);
+        setLastDoc(null);
+      }
+      
+      setHasNextPage(hasMore);
       setFilteredProducts(productsData);
+      
     } catch (error) {
       console.error('Error fetching filtered products:', error);
       // Fallback to Redux products if Firestore query fails
@@ -100,7 +173,54 @@ export default function HomePage() {
         return a.category.localeCompare(b.category);
       });
       
-      setFilteredProducts(fallbackProducts);
+      // Apply client-side pagination
+      const startIndex = (currentPage - 1) * productsPerPage;
+      const endIndex = startIndex + productsPerPage;
+      const paginatedProducts = fallbackProducts.slice(startIndex, endIndex);
+      
+      setFilteredProducts(paginatedProducts);
+      setTotalProducts(fallbackProducts.length);
+      setHasNextPage(endIndex < fallbackProducts.length);
+      setHasPrevPage(currentPage > 1);
+    }
+  };
+  
+  // Reset pagination when filters change
+  const resetPagination = () => {
+    setCurrentPage(1);
+    setLastDoc(null);
+    setFirstDoc(null);
+    setPageHistory([]);
+    setHasPrevPage(false);
+  };
+  
+  // Handle next page
+  const handleNextPage = () => {
+    if (hasNextPage && lastDoc) {
+      // Store current page cursor in history
+      setPageHistory(prev => [...prev, { page: currentPage, cursor: firstDoc }]);
+      setCurrentPage(prev => prev + 1);
+      setHasPrevPage(true);
+      fetchFilteredProducts('next', lastDoc);
+    }
+  };
+  
+  // Handle previous page
+  const handlePrevPage = () => {
+    if (hasPrevPage && pageHistory.length > 0) {
+      const prevPageData = pageHistory[pageHistory.length - 1];
+      setPageHistory(prev => prev.slice(0, -1));
+      setCurrentPage(prevPageData.page);
+      setHasPrevPage(pageHistory.length > 1);
+      
+      if (prevPageData.page === 1) {
+        // Go back to first page
+        fetchFilteredProducts('first');
+      } else {
+        // Go back to previous page using cursor
+        const prevCursor = pageHistory.length > 1 ? pageHistory[pageHistory.length - 2].cursor : null;
+        fetchFilteredProducts('prev', prevCursor);
+      }
     }
   };
 
@@ -109,9 +229,23 @@ export default function HomePage() {
     fetchCategoriesAndBrands();
   }, [dispatch]);
   
+  // Reset pagination and fetch products when filters or sorting change
   useEffect(() => {
-    fetchFilteredProducts();
-  }, [selectedCategory, selectedBrand, sortBy, products]);
+    resetPagination();
+    getTotalProductsCount();
+    fetchFilteredProducts('first');
+  }, [selectedCategory, selectedBrand, sortBy]);
+  
+  // Fetch products when productsPerPage changes (responsive breakpoint change)
+  useEffect(() => {
+    if (currentPage === 1) {
+      fetchFilteredProducts('first');
+    } else {
+      // Reset to first page when products per page changes
+      resetPagination();
+      fetchFilteredProducts('first');
+    }
+  }, [productsPerPage]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -167,7 +301,7 @@ export default function HomePage() {
         {/* Filter Controls */}
         <div className="flex flex-wrap items-end gap-4 flex-1">
           {/* Category Filter */}
-          <div className="min-w-[150px]">
+          <div className="w-[150px]">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -182,7 +316,7 @@ export default function HomePage() {
           </div>
 
           {/* Brand Filter */}
-          <div className="min-w-[150px]">
+          <div className="w-[150px]">
             <select
               value={selectedBrand}
               onChange={(e) => setSelectedBrand(e.target.value)}
@@ -212,12 +346,17 @@ export default function HomePage() {
 
       {/* Results Count */}
       <div className="mb-4 text-sm text-[#52796f]">
-        Showing {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+        Showing {((currentPage - 1) * productsPerPage) + 1}-{Math.min(currentPage * productsPerPage, totalProducts)} of {totalProducts} product{totalProducts !== 1 ? 's' : ''}
         {selectedCategory !== 'All Category' && ` in ${selectedCategory}`}
         {selectedBrand !== 'All Brand' && ` from ${selectedBrand}`}
+        {totalProducts > 0 && (
+          <span className="ml-2 text-xs text-[#8a8f8c]">
+            (Page {currentPage} of {Math.ceil(totalProducts / productsPerPage)})
+          </span>
+        )}
       </div>
 
-      <div className="grid grid-cols-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {filteredProducts.length === 0 ? (
           <div className="col-span-full text-center py-12">
             <div className="text-[#52796f] text-lg mb-2">No products found</div>
@@ -235,7 +374,7 @@ export default function HomePage() {
                 className="w-full h-32 object-contain mb-3"
               />
             ) : (
-              <div className="w-full h-32 bg-[#e0e4e2] flex items-center justify-center text-[#8a8f8c] text-xs mb-3">
+              <div className="w-full h-40 bg-[#e0e4e2] flex items-center justify-center text-[#8a8f8c] text-xs mb-3">
                 No Image
               </div>
             )}
@@ -276,6 +415,44 @@ export default function HomePage() {
         ))
         )}
       </div>
+      
+      {/* Pagination Controls */}
+      {totalProducts > productsPerPage && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={handlePrevPage}
+            disabled={!hasPrevPage}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+              hasPrevPage
+                ? 'bg-[#354f52] hover:bg-[#2f3e46] text-white'
+                : 'bg-[#e0e4e2] text-[#8a8f8c] cursor-not-allowed'
+            }`}
+          >
+            ← Previous
+          </button>
+          
+          <div className="flex items-center gap-2 text-sm text-[#52796f]">
+            <span>Page</span>
+            <span className="bg-[#f9fdfb] border border-[#cad2c5] px-3 py-1 rounded-md font-medium">
+              {currentPage}
+            </span>
+            <span>of</span>
+            <span className="font-medium">{Math.ceil(totalProducts / productsPerPage)}</span>
+          </div>
+          
+          <button
+            onClick={handleNextPage}
+            disabled={!hasNextPage}
+            className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+              hasNextPage
+                ? 'bg-[#354f52] hover:bg-[#2f3e46] text-white'
+                : 'bg-[#e0e4e2] text-[#8a8f8c] cursor-not-allowed'
+            }`}
+          >
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

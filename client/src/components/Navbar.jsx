@@ -40,14 +40,14 @@ export default function Navbar() {
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md"
                     onClick={() => setShowAdminDropdown(false)}
                   >
-                    👥 Manage Users
+                    Manage Users
                   </Link>
                   <Link
                     to="/admin-dashboard"
                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={() => setShowAdminDropdown(false)}
                   >
-                    📊 Dashboard
+                    Dashboard
                   </Link>
                   <hr className="border-gray-200" />
                   <div className="px-4 py-2 text-xs text-gray-500">

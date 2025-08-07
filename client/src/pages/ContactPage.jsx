@@ -29,7 +29,7 @@ export default function ContactPage() {
           <div className="grid grid-cols-2 gap-8">
             <div className="p-6 border border-[#cad2c5] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">
               <h3 className="font-semibold text-[#354f52] mb-3">Email</h3>
-              <p className="text-[#52796f]">support@picachio.com</p>
+              <p className="text-[#52796f]">info@picachio.com</p>
             </div>
 
             <div className="p-6 border border-[#cad2c5] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 bg-white">

@@ -287,7 +287,7 @@ export default function AdminSetupPage() {
                             onClick={() => handleEditUser(userData)}
                             className="inline-flex items-center px-3 py-1 text-xs font-medium rounded bg-[#354f52] hover:bg-[#2f3e46] text-white transition"
                           >
-                            ✏️ Edit
+                            Edit
                           </button>
                         </div>
                       )}
@@ -388,7 +388,7 @@ export default function AdminSetupPage() {
           <ul className="text-sm text-[#52796f] space-y-2">
             <li>• <strong>Admin</strong>: Can create, edit, and delete products</li>
             <li>• <strong>Client</strong>: Can view products and add them to cart</li>
-            <li>• Click <strong>"✏️ Edit"</strong> to change user role or delete user</li>
+            <li>• Click <strong>"Edit"</strong> to change user role or delete user</li>
             <li>• You cannot edit your own account</li>
           </ul>
         </div>
