@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../configs/firebase';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,10 +17,13 @@ export default function HomePage() {
 
   const { items: products, loading: productLoading } = useSelector((state) => state.products);
   
-  // Filter and sort state
-  const [selectedCategory, setSelectedCategory] = useState('All Category');
-  const [selectedBrand, setSelectedBrand] = useState('All Brand');
-  const [sortBy, setSortBy] = useState('price-asc');
+  // URL search parameters for filter persistence
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Filter and sort state - initialize from URL params
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All Category');
+  const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || 'All Brand');
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'price-asc');
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -185,13 +188,23 @@ export default function HomePage() {
     }
   };
   
+  // Update URL params when filters change
+  const updateURLParams = (category, brand, sort) => {
+    const params = new URLSearchParams();
+    if (category !== 'All Category') params.set('category', category);
+    if (brand !== 'All Brand') params.set('brand', brand);
+    if (sort !== 'price-asc') params.set('sort', sort);
+    setSearchParams(params);
+  };
+
   // Reset pagination when filters change
   const resetPagination = () => {
     setCurrentPage(1);
     setLastDoc(null);
     setFirstDoc(null);
-    setPageHistory([]);
+    setHasNextPage(false);
     setHasPrevPage(false);
+    setPageHistory([]);
   };
   
   // Handle next page
@@ -304,7 +317,11 @@ export default function HomePage() {
           <div className="w-[150px]">
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e) => {
+                const newCategory = e.target.value;
+                setSelectedCategory(newCategory);
+                updateURLParams(newCategory, selectedBrand, sortBy);
+              }}
               className="w-full px-3 py-2 border border-[#cad2c5] rounded-md bg-white text-[#354f52] focus:outline-none focus:ring-2 focus:ring-[#52796f] focus:border-transparent"
             >
               {categories.map((category) => (
@@ -319,7 +336,11 @@ export default function HomePage() {
           <div className="w-[150px]">
             <select
               value={selectedBrand}
-              onChange={(e) => setSelectedBrand(e.target.value)}
+              onChange={(e) => {
+                const newBrand = e.target.value;
+                setSelectedBrand(newBrand);
+                updateURLParams(selectedCategory, newBrand, sortBy);
+              }}
               className="w-full px-3 py-2 border border-[#cad2c5] rounded-md bg-white text-[#354f52] focus:outline-none focus:ring-2 focus:ring-[#52796f] focus:border-transparent"
             >
               {brands.map((brand) => (
@@ -334,7 +355,11 @@ export default function HomePage() {
           <div className="min-w-[150px]">
             <select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
+              onChange={(e) => {
+                const newSort = e.target.value;
+                setSortBy(newSort);
+                updateURLParams(selectedCategory, selectedBrand, newSort);
+              }}
               className="w-full px-3 py-2 border border-[#cad2c5] rounded-md bg-white text-[#354f52] focus:outline-none focus:ring-2 focus:ring-[#52796f] focus:border-transparent"
             >
               <option value="price-asc">Price: Low to High</option>
