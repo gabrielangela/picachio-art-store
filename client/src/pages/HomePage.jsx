@@ -24,6 +24,7 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All Category');
   const [selectedBrand, setSelectedBrand] = useState(searchParams.get('brand') || 'All Brand');
   const [sortBy, setSortBy] = useState(searchParams.get('sort') || 'price-asc');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -93,7 +94,20 @@ export default function HomePage() {
       }
       
       const snapshot = await getDocs(q);
-      setTotalProducts(snapshot.size);
+      let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      // Apply search filter client-side
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+        products = products.filter(product => 
+          product.name?.toLowerCase().includes(query) ||
+          product.description?.toLowerCase().includes(query) ||
+          product.category?.toLowerCase().includes(query) ||
+          product.brand?.toLowerCase().includes(query)
+        );
+      }
+      
+      setTotalProducts(products.length);
     } catch (error) {
       console.error('Error getting total count:', error);
       setTotalProducts(0);
@@ -118,36 +132,73 @@ export default function HomePage() {
       const priceDirection = sortBy === 'price-desc' ? 'desc' : 'asc';
       q = query(q, orderBy('price', priceDirection), orderBy('category', 'asc'));
       
-      // Add pagination
-      if (pageDirection === 'next' && cursor) {
-        q = query(q, startAfter(cursor), limit(productsPerPage + 1)); // +1 to check if there's a next page
-      } else if (pageDirection === 'prev' && cursor) {
-        // For previous page, start after the cursor from the previous page
-        q = query(q, startAfter(cursor), limit(productsPerPage + 1));
+      // If there's a search query, we need to fetch all matching documents and handle pagination client-side
+      if (searchQuery.trim()) {
+        const snapshot = await getDocs(q);
+        let allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), _doc: doc }));
+        
+        // Apply search filter
+        const query = searchQuery.toLowerCase().trim();
+        allProducts = allProducts.filter(product => 
+          product.name?.toLowerCase().includes(query) ||
+          product.description?.toLowerCase().includes(query) ||
+          product.category?.toLowerCase().includes(query) ||
+          product.brand?.toLowerCase().includes(query)
+        );
+        
+        // Handle client-side pagination
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        const paginatedProducts = allProducts.slice(startIndex, endIndex);
+        
+        // Update pagination state
+        setHasNextPage(endIndex < allProducts.length);
+        setHasPrevPage(currentPage > 1);
+        
+        if (paginatedProducts.length > 0) {
+          setFirstDoc(paginatedProducts[0]._doc);
+          setLastDoc(paginatedProducts[paginatedProducts.length - 1]._doc);
+        } else {
+          setFirstDoc(null);
+          setLastDoc(null);
+        }
+        
+        // Remove _doc property before setting state
+        const cleanProducts = paginatedProducts.map(({ _doc, ...product }) => product);
+        setFilteredProducts(cleanProducts);
       } else {
-        q = query(q, limit(productsPerPage + 1)); // First page
+        // Original Firestore pagination for non-search queries
+        // Add pagination
+        if (pageDirection === 'next' && cursor) {
+          q = query(q, startAfter(cursor), limit(productsPerPage + 1)); // +1 to check if there's a next page
+        } else if (pageDirection === 'prev' && cursor) {
+          // For previous page, start after the cursor from the previous page
+          q = query(q, startAfter(cursor), limit(productsPerPage + 1));
+        } else {
+          q = query(q, limit(productsPerPage + 1)); // First page
+        }
+        
+        const snapshot = await getDocs(q);
+        const docs = snapshot.docs;
+        
+        // Check if there are more pages
+        const hasMore = docs.length > productsPerPage;
+        const actualDocs = hasMore ? docs.slice(0, productsPerPage) : docs;
+        
+        const productsData = actualDocs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Update pagination state
+        if (actualDocs.length > 0) {
+          setFirstDoc(actualDocs[0]);
+          setLastDoc(actualDocs[actualDocs.length - 1]);
+        } else {
+          setFirstDoc(null);
+          setLastDoc(null);
+        }
+        
+        setHasNextPage(hasMore);
+        setFilteredProducts(productsData);
       }
-      
-      const snapshot = await getDocs(q);
-      const docs = snapshot.docs;
-      
-      // Check if there are more pages
-      const hasMore = docs.length > productsPerPage;
-      const actualDocs = hasMore ? docs.slice(0, productsPerPage) : docs;
-      
-      const productsData = actualDocs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
-      // Update pagination state
-      if (actualDocs.length > 0) {
-        setFirstDoc(actualDocs[0]);
-        setLastDoc(actualDocs[actualDocs.length - 1]);
-      } else {
-        setFirstDoc(null);
-        setLastDoc(null);
-      }
-      
-      setHasNextPage(hasMore);
-      setFilteredProducts(productsData);
       
     } catch (error) {
       console.error('Error fetching filtered products:', error);
@@ -189,12 +240,13 @@ export default function HomePage() {
     }
   };
   
-  // Update URL params when filters change
-  const updateURLParams = (category, brand, sort) => {
+  // Update URL parameters when filters change
+  const updateURLParams = (category, brand, sort, search = searchQuery) => {
     const params = new URLSearchParams();
     if (category !== 'All Category') params.set('category', category);
     if (brand !== 'All Brand') params.set('brand', brand);
     if (sort !== 'price-asc') params.set('sort', sort);
+    if (search.trim()) params.set('search', search.trim());
     setSearchParams(params);
   };
 
@@ -242,12 +294,15 @@ export default function HomePage() {
     fetchCategoriesAndBrands();
   }, [dispatch]);
   
-  // Reset pagination and fetch products when filters or sorting change
+  // Effect to re-fetch products when filters change
   useEffect(() => {
-    resetPagination();
-    getTotalProductsCount();
-    fetchFilteredProducts('first');
-  }, [selectedCategory, selectedBrand, sortBy]);
+    if (categories.length > 0 && brands.length > 0) {
+      setCurrentPage(1);
+      setPageHistory([]);
+      fetchFilteredProducts('first');
+      getTotalProductsCount();
+    }
+  }, [selectedCategory, selectedBrand, sortBy, searchQuery, productsPerPage]);
   
   // Fetch products when productsPerPage changes (responsive breakpoint change)
   useEffect(() => {
@@ -314,8 +369,43 @@ export default function HomePage() {
           </button>
         )}
         
+        {/* Search Bar */}
+        <div className="flex-1 min-w-[200px] max-w-md">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => {
+                const newSearch = e.target.value;
+                setSearchQuery(newSearch);
+                updateURLParams(selectedCategory, selectedBrand, sortBy, newSearch);
+              }}
+              className="w-full px-4 py-2 pl-10 border border-[#cad2c5] rounded-md bg-white text-[#354f52] placeholder-[#8a8f8c] focus:outline-none focus:ring-2 focus:ring-[#52796f] focus:border-transparent"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-[#8a8f8c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            {searchQuery && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  updateURLParams(selectedCategory, selectedBrand, sortBy, '');
+                }}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#8a8f8c] hover:text-[#52796f]"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+        
         {/* Filter Controls */}
-        <div className="flex flex-wrap items-end gap-4 flex-1">
+        <div className="flex flex-wrap items-end gap-4">
           {/* Category Filter */}
           <div className="min-w-[150px]">
             <select
@@ -375,6 +465,7 @@ export default function HomePage() {
       {/* Results Count */}
       <div className="mb-4 text-sm text-[#52796f]">
         Showing {((currentPage - 1) * productsPerPage) + 1}-{Math.min(currentPage * productsPerPage, totalProducts)} of {totalProducts} product{totalProducts !== 1 ? 's' : ''}
+        {searchQuery && ` matching "${searchQuery}"`}
         {selectedCategory !== 'All Category' && ` in ${selectedCategory}`}
         {selectedBrand !== 'All Brand' && ` from ${selectedBrand}`}
         {totalProducts > 0 && (
@@ -389,7 +480,7 @@ export default function HomePage() {
           <div className="col-span-full text-center py-12">
             <div className="text-[#52796f] text-lg mb-2">No products found</div>
             <div className="text-[#8a8f8c] text-sm">
-              Try adjusting your filters or check back later
+              {searchQuery ? `No products match "${searchQuery}"` : 'Try adjusting your filters or check back later'}
             </div>
           </div>
         ) : (
