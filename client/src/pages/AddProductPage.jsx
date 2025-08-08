@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { addProduct } from '../redux/productsSlice';
 
@@ -8,11 +8,13 @@ import "@uploadcare/react-uploader/core.css";
 
 export default function AddProductPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   const [form, setForm] = useState({
     name: '',
     brand: '',
+    category: '',
     imageUrl: '',
     price: ''
   });
@@ -32,7 +34,9 @@ export default function AddProductPage() {
       }));
 
       alert("Product added successfully");
-      navigate('/');
+      // Preserve filter state by including current search params
+      const searchParams = new URLSearchParams(location.search);
+      navigate(`/?${searchParams.toString()}`);
     } catch (error) {
       alert("Error adding product: " + error.message);
     }

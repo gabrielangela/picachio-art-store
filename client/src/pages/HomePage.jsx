@@ -122,6 +122,7 @@ export default function HomePage() {
       if (pageDirection === 'next' && cursor) {
         q = query(q, startAfter(cursor), limit(productsPerPage + 1)); // +1 to check if there's a next page
       } else if (pageDirection === 'prev' && cursor) {
+        // For previous page, start after the cursor from the previous page
         q = query(q, startAfter(cursor), limit(productsPerPage + 1));
       } else {
         q = query(q, limit(productsPerPage + 1)); // First page
@@ -230,9 +231,8 @@ export default function HomePage() {
         // Go back to first page
         fetchFilteredProducts('first');
       } else {
-        // Go back to previous page using cursor
-        const prevCursor = pageHistory.length > 1 ? pageHistory[pageHistory.length - 2].cursor : null;
-        fetchFilteredProducts('prev', prevCursor);
+        // Go back to previous page using the stored cursor
+        fetchFilteredProducts('prev', prevPageData.cursor);
       }
     }
   };
@@ -304,7 +304,10 @@ export default function HomePage() {
         {/* Admin-only Add Product button */}
         {userRole === 'admin' && (
           <button
-            onClick={() => navigate('/add')}
+            onClick={() => {
+              const currentParams = searchParams.toString();
+              navigate(`/add${currentParams ? `?${currentParams}` : ''}`);
+            }}
             className="bg-[#354f52] hover:bg-[#2f3e46] text-white font-semibold px-4 py-2 rounded transition"
           >
             + Add Product
@@ -314,7 +317,7 @@ export default function HomePage() {
         {/* Filter Controls */}
         <div className="flex flex-wrap items-end gap-4 flex-1">
           {/* Category Filter */}
-          <div className="w-[150px]">
+          <div className="min-w-[150px]">
             <select
               value={selectedCategory}
               onChange={(e) => {
@@ -333,7 +336,7 @@ export default function HomePage() {
           </div>
 
           {/* Brand Filter */}
-          <div className="w-[150px]">
+          <div className="min-w-[150px]">
             <select
               value={selectedBrand}
               onChange={(e) => {
@@ -414,7 +417,10 @@ export default function HomePage() {
                 // Admin view: Edit and Delete buttons
                 <>
                   <button
-                    onClick={() => navigate(`/edit/${product.id}`)}
+                    onClick={() => {
+                      const currentParams = searchParams.toString();
+                      navigate(`/edit/${product.id}${currentParams ? `?${currentParams}` : ''}`);
+                    }}
                     className="bg-[#b0c4b1] hover:bg-[#9cb3a1] text-white text-sm px-3 py-1 rounded"
                   >
                     Edit

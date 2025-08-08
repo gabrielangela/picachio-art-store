@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useLocation } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { updateProduct } from '../redux/productsSlice';
 import { db } from '../configs/firebase';
@@ -10,12 +10,14 @@ import "@uploadcare/react-uploader/core.css";
 
 export default function EditProductPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { id } = useParams();
 
   const [form, setForm] = useState({
     name: '',
     brand: '',
+    category: '',
     imageUrl: '',
     price: ''
   });
@@ -28,7 +30,9 @@ export default function EditProductPage() {
         setForm(docSnap.data());
       } else {
         alert('Product not found');
-        navigate('/');
+        // Preserve filter state even when product not found
+        const searchParams = new URLSearchParams(location.search);
+        navigate(`/?${searchParams.toString()}`);
       }
     };
     fetchProduct();
@@ -44,7 +48,9 @@ export default function EditProductPage() {
     try {
       await dispatch(updateProduct({ id, updated: { ...form, price: Number(form.price) } }));
       alert('Product updated successfully');
-      navigate('/');
+      // Preserve filter state by including current search params
+      const searchParams = new URLSearchParams(location.search);
+      navigate(`/?${searchParams.toString()}`);
     } catch (error) {
       alert('Error updating product: ' + error.message);
     }
